@@ -105,10 +105,11 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
   Q <- ggplot(plotdat, aes(x=groupindicator1, y=Ratio)) +
        theme(text=element_text(size=24))+
        #theme_bw()+
+       guides(fill=FALSE)+
        theme_classic()+
        labs(list(title=paste("",genename,sep=" "),x=x,y=y))+
        geom_errorbar(aes(ymin=Ratio-se, ymax=Ratio+se), width=.1 )+   # Width of the error bars
-       geom_bar(stat="identity",aes(fill=FALSE))+
+       geom_bar(stat="identity",aes(fill=groupindicator1))+
        scale_fill_discrete(name=lab_legend)
   if(twolevel){
     Q <- Q + facet_wrap( ~ groupindicator2,ncol=ncol )
