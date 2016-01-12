@@ -105,6 +105,7 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
   Q <- ggplot(plotdat, aes(x=groupindicator1, y=Ratio)) +
        theme(text=element_text(size=24))+
        #theme_bw()+
+       scale_x_continuous(limits = c(0,0.7))+
        guides(fill=FALSE)+
        theme_classic()+
        labs(list(title=paste("",genename,sep=" "),x=x,y=y))+
