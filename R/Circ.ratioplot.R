@@ -107,7 +107,7 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
          theme(text=element_text(size=size))+
          expand_limits(y=0.9)+
          guides(fill=FALSE)+
-         labs(list(title=paste(toString(Circ[plotrow,circle_description]),genename,sep=" "),x=x,y=y))+
+         labs(list(title=genename,x=x,y=y))+
          geom_bar(stat="identity",aes(fill=groupindicator1))+
          geom_errorbar(aes(ymin=Ratio-se, ymax=Ratio+se), width=.1 )+   # Width of the error bars
          scale_fill_discrete(name=lab_legend)
