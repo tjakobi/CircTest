@@ -106,7 +106,8 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
        theme(text=element_text(size=24))+
        #theme_bw()+
        #coord_cartesian(limits = c(0,0.7))+
-       xlim(0, 0.7)+
+       #xlim(0, 0.7)+
+       expand_limits(y=0.7)+
        guides(fill=FALSE)+
        theme_classic()+
        labs(list(title=genename,x=x,y=y))+
