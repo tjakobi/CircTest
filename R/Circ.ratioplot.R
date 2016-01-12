@@ -104,7 +104,8 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
   #View(plotdat)
   Q <- ggplot(plotdat, aes(x=groupindicator1, y=Ratio)) +
        theme(text=element_text(size=24))+
-       theme_bw()+
+       #theme_bw()+
+       theme_classic()+
        labs(list(title=paste("",genename,sep=" "),x=x,y=y))+
        geom_errorbar(aes(ymin=Ratio-se, ymax=Ratio+se), width=.1 )+   # Width of the error bars
        geom_bar(stat="identity",aes(fill=FALSE))+
