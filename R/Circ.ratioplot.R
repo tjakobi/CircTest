@@ -1,21 +1,22 @@
 ## Give a circRNA count data, plot a certain row or plot all rows
 #' @title Circ.ratioplot
-#' 
+#'
 #' @description
 #' Plot the ratio of circRNAs to the total transcripts (circRNA plus liner RNA).
-#' @param Circ CircRNACount file. A file of circRNA read count table. First three columns are circRNA coordinates, and followed by columns for circRNA read counts, each sample per column. 
+#' @param Circ CircRNACount file. A file of circRNA read count table. First three columns are circRNA coordinates, and followed by columns for circRNA read counts, each sample per column.
 #' @param Linear LinearCount file. A file of circRNA host gene expression count table. Same configuration as CircRNACount file.
 #' @param plotrow The rownumber or rowname in the CircRNACount table corresponding the specific gene which you want to plot.
 #' @param size the text size. Default 18.
 #' @param ncol if groupindicator2 is provided, specify the panel layout. Default 2.
-#' @param CircCoordinates BED format circRNA coordinates file. 
-#' @param groupindicator1 A vector of group indicators. For example, ages. 
+#' @param CircCoordinates BED format circRNA coordinates file.
+#' @param groupindicator1 A vector of group indicators. For example, ages.
 #' @param groupindicator2 An other vector of group indicators. For example, tissues. This indicator will be used to segement plots out.
 #' @param x x axis lable. Default 'Conditions'.
 #' @param y y axis lable. Default 'circRNA/(circRNA+Linear)'.
 #' @param lab_legend legend title
 #' @param circle_description Column indices which do not carry circle/linear read counts.
 #' @param gene_column Column index of the column containing the gene name in CircCoordinates if available, otherwise its chosen from Circ.
+#' @param only_genes List of genes to be printed
 #' @examples data(Coordinates)
 #' data(Circ)
 #' data(Linear)
@@ -23,10 +24,10 @@
 #' data(Circ)
 #' data(Linear)
 #' Circ.ratioplot(Circ,Linear,Coordinates,plotrow=10,groupindicator1=c(rep('1days',6),rep('4days',6),rep('20days',6)),groupindicator2=rep(c(rep('Female',4),rep('Male',2)),3),lab_legend='Ages', circle_description = c(1:3), gene_column = 4)
-#' 
+#'
 #' @export Circ.ratioplot
-#' 
-Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=18,ncol=2,groupindicator1=NULL,groupindicator2=NULL,x='Conditions',y='circRNA/(circRNA+Linear)',lab_legend='groupindicator1', circle_description = c(1:3), gene_column = None){
+#'
+Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=18,ncol=2,groupindicator1=NULL,groupindicator2=NULL,x='Conditions',y='circRNA/(circRNA+Linear)',lab_legend='groupindicator1', circle_description = c(1:3), gene_column = None, only_genes = None){
   require(ggplot2)
   #require(Rmisc)
 
@@ -44,15 +45,15 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
   }else{
     twolevel <- FALSE
   }
-  
+
   rownames.circ <- rownames(Circ)
   Circ <- data.frame(lapply(Circ, as.character), stringsAsFactors=FALSE)
   rownames(Circ) <- rownames.circ
-  
+
   rownames.linear <- rownames(Linear)
   Linear <- data.frame(lapply(Linear, as.character), stringsAsFactors=FALSE)
   rownames(Linear) <- rownames.linear
-  
+
   if(!missing(CircCoordinates)){
     rownames.circCoordinates <- rownames(CircCoordinates)
     CircCoordinates <- data.frame(lapply(CircCoordinates, as.character), stringsAsFactors=FALSE)
@@ -62,12 +63,12 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
     rownames(CircCoordinates) <- rownames.circ
     rownames.circCoordinates <- rownames(CircCoordinates)
     CircCoordinates <- data.frame(lapply(CircCoordinates, as.character), stringsAsFactors=FALSE)
-    rownames(CircCoordinates) <- rownames.circCoordinates  
+    rownames(CircCoordinates) <- rownames.circCoordinates
   }
-  
+
   groupindicator1 <- factor(groupindicator1,levels=unique(groupindicator1))
   groupindicator2 <- factor(groupindicator2,levels=unique(groupindicator2))
-  
+
   # Get gene name, if no annotation, output NULL
   if (is.character(plotrow)){
     if ( ! plotrow %in% rownames(CircCoordinates) ){
@@ -102,20 +103,34 @@ Circ.ratioplot <- function(Circ,Linear,CircCoordinates = None,plotrow='1',size=1
                                      measurevar='Ratio',groupvars=c('groupindicator1') )
   }
   #View(plotdat)
+  if(is.element(genename,only_genes)){
+library(cowplot)
   Q <- ggplot(plotdat, aes(x=groupindicator1, y=Ratio)) +
-         theme_classic()+
-         theme(text=element_text(size=size))+
-         expand_limits(y=0.9)+
-         guides(fill=FALSE)+
-         labs(list(title=genename,x=x,y=y))+
-         geom_bar(stat="identity",aes(fill=groupindicator1))+
-         geom_errorbar(aes(ymin=Ratio-se, ymax=Ratio+se), width=.1 )+   # Width of the error bars
-         scale_fill_discrete(name=lab_legend)
+  theme_bw() +
+  theme(
+  panel.background = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(),
+  axis.line.x = element_line(colour = "black", size=0.5),
+  axis.line.y = element_line(colour = "black", size=0.5)
+  )+
+  # theme(axis.line = element_line(color = 'black'))+
+  scale_fill_grey(start = 0, end = .9)+
+  theme(text=element_text(size=size),  plot.title=element_text(size=size,face="italic"))+
+  expand_limits(y=0.8)+
+  guides(fill=FALSE)+
+  labs(list(title=genename,x=x,y='Enrichment'))+
+  geom_errorbar(aes(ymin=Ratio-se, ymax=Ratio+se), width=.1 )+   # Width of the error bars
+  geom_bar(stat="identity",aes(fill=groupindicator1))+
+  #scale_fill_discrete(name=lab_legend)
+  #scale_x_continuous(expand = c(0, 0))
+  scale_y_continuous(expand = c(0.0, 0.0))
 
   if(twolevel){
     Q <- Q + facet_wrap( ~ groupindicator2,ncol=ncol )
   }
-
-  print(Q)
+  return(Q)
 }
 
+}
