@@ -112,6 +112,7 @@ library(cowplot)
   panel.grid.major = element_blank(),
   panel.grid.minor = element_blank(),
   panel.border = element_blank(),
+  axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
   axis.line.x = element_line(colour = "black", size=0.5),
   axis.line.y = element_line(colour = "black", size=0.5)
   )+
